@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Concept Design · Fitness Dashboard 示例</title>
+<!--
+  UI Concept Design 设计系统 · 完整源码示例 ③（单文件，双击即可打开）
+  页面：运动打卡仪表盘 —— 顶栏 + hero(双侧线稿插画 + 信任条) + 统计行(Stat 32px+)
+        + 分段控件(56px 白胶囊浮起) + 运动类型卡网格(实色图标块 + 右侧关键值 + badge)
+        + 深色展示卡(每周推荐 · chip + 光晕 + 幽灵按钮 + 线稿) + 今日活动点线时间轴 + toast。
+  全部取值来自 ../tokens/design-tokens.md；图标为内联 SVG（Lucide 风格 1.5px 描边圆头）。
+-->
+<style>
+  :root {
+    /* tokens §1-§5（与 design-tokens.md 严格一致） */
+    --paper:#F5F4F1; --card:#FFFFFF; --ink:#1C1C1A; --ink-hover:#333330;
+    --sub:#6F6F6A; --weak:#A6A6A0; --track:#ECEAE5; --track-hover:#E2E0DA;
+    --accent:#2F6BFF; --star:#FFC83D; --pop-green:#A8E05F;
+    /* 有色深色卡（tokens §1） */
+    --dark-navy:#232044; --dark-purple:#3A2440; --dark-green:#1E2B26; --dark-teal:#16303A;
+    --r-card:24px; --r-pill:999px; --r-chip:12px; --r-inner:18px;
+    --shadow-card:0 8px 24px rgba(28,28,26,.06);
+    --shadow-float:0 2px 8px rgba(28,28,26,.08);
+    --font:'Segoe UI','Microsoft YaHei UI','Microsoft YaHei',sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--font); background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .page { max-width:1080px; margin:0 auto; padding:56px 40px; }
+
+  /* ---------- 顶栏 ---------- */
+  .topbar { display:flex; align-items:center; gap:24px; }
+  .brand { display:flex; align-items:center; gap:12px; font-weight:700; font-size:18px; }
+  .brand-mark { width:46px; height:46px; border-radius:14px; background:var(--ink); color:#fff;
+    display:inline-flex; align-items:center; justify-content:center; }
+  .nav { display:flex; gap:28px; margin-left:40px; flex:1; }
+  .nav a { color:var(--sub); text-decoration:none; font-size:15px; transition:color 150ms ease-out; }
+  .nav a:hover { color:var(--ink); }
+  .nav a.on { color:var(--ink); font-weight:600; }
+
+  /* ---------- 胶囊按钮（所有按钮全圆角，150ms 颜色插值） ---------- */
+  .btn { display:inline-flex; align-items:center; gap:10px; height:48px; padding:0 32px;
+    border:none; border-radius:var(--r-pill); font:600 15px var(--font); cursor:pointer;
+    transition:background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out; }
+  .btn-primary { background:var(--ink); color:#fff; }
+  .btn-primary:hover { background:var(--ink-hover); }
+  .btn-primary:active { background:#000; }
+  .btn-outline { background:var(--card); color:var(--ink); border:1.5px solid rgba(28,28,26,.85); }
+  .btn-outline:hover { background:#FAFAF8; border-color:rgba(28,28,26,.6); }
+
+  /* ---------- Hero（双侧线稿插画 + Display + 信任条） ---------- */
+  .hero { position:relative; text-align:center; padding:120px 40px 96px; }
+  .hero h1 { font-size:56px; font-weight:700; letter-spacing:-1px; line-height:1.12; }
+  .hero h1 .soft { color:var(--sub); }
+  .hero p { margin-top:24px; font-size:16px; line-height:1.65; color:var(--sub); }
+  .hero .actions { margin-top:40px; display:flex; justify-content:center; gap:16px; }
+  /* 手绘线稿：2.5px ink 圆头线 + pop-green 单色填涂 */
+  .art { position:absolute; top:50%; width:280px; transform:translateY(-52%); }
+  .art svg { display:block; width:100%; height:auto; transition:transform 200ms ease-out; }
+  .art:hover svg { transform:translateY(-4px); }
+  .art-left { left:-40px; }
+  .art-right { right:-40px; }
+  .trust { margin-top:60px; }
+  .trust-row { margin-top:16px; display:flex; justify-content:center; gap:40px; flex-wrap:wrap; }
+  .trust-row span { font-weight:700; color:var(--weak); opacity:.6; }
+
+  /* ---------- 统计行（Caption weak 在上 + Stat Bold 32px+ 在下） ---------- */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; padding:32px 40px;
+    background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow-card); }
+  .stat-label { font-size:13px; color:var(--weak); }
+  .stat-value { font-size:32px; font-weight:700; color:var(--ink); margin-top:6px; font-variant-numeric:tabular-nums; }
+  .stat-value.accent { color:var(--accent); }
+
+  /* ---------- 分段控件（track 底 56px，选中白胶囊浮起） ---------- */
+  .toolbar { display:flex; align-items:center; justify-content:space-between; margin:48px 0 24px; }
+  .segment { display:inline-flex; align-items:center; gap:4px; height:56px; padding:4px;
+    background:var(--track); border-radius:var(--r-pill); }
+  .segment button { display:inline-flex; align-items:center; gap:12px; height:48px; padding:0 28px;
+    border:none; border-radius:var(--r-pill); background:transparent; color:var(--sub);
+    font:600 16px var(--font); cursor:pointer;
+    transition:background-color 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out; }
+  .segment button:hover { color:var(--ink); }
+  .segment button.active { background:var(--card); color:var(--ink); box-shadow:var(--shadow-float); }
+  .segment button svg { width:24px; height:24px; }
+
+  /* ---------- 运动类型卡网格（实色图标块 + 标题 + 副文 + 右侧关键值） ---------- */
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .activity { display:flex; flex-direction:column; padding:32px; background:var(--card);
+    border-radius:var(--r-card); box-shadow:var(--shadow-card);
+    transition:box-shadow 150ms ease-out, transform 150ms ease-out; }
+  .activity:hover { box-shadow:0 10px 28px rgba(28,28,26,.1); transform:translateY(-1px); }
+  .act-head { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:22px; }
+  .icon-block { width:56px; height:56px; border-radius:16px; flex:none; color:#fff;
+    display:inline-flex; align-items:center; justify-content:center; }
+  .activity h3 { font-size:20px; margin-bottom:6px; }
+  .activity .sub { font-size:14px; color:var(--sub); flex:1; }
+  .act-foot { display:flex; align-items:center; justify-content:space-between; margin:22px 0; }
+  .act-foot .meta { font-size:13px; color:var(--weak); }
+  .act-value { font-size:22px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+  .btn-secondary { display:inline-flex; align-items:center; gap:10px; height:44px; padding:0 24px;
+    border:none; border-radius:var(--r-pill); background:var(--track); color:var(--ink);
+    font:600 15px var(--font); cursor:pointer; align-self:flex-start;
+    transition:background-color 150ms ease-out; }
+  .btn-secondary:hover { background:var(--track-hover); }
+  /* badge：浅色卡上 = pill 全圆角（15% 底 + 同色深字） */
+  .badge { display:inline-flex; align-items:center; height:26px; padding:0 14px; border-radius:var(--r-pill);
+    font-size:12px; font-weight:600; }
+  .badge-new { background:#E8EDFF; color:var(--accent); }
+  .badge-star { background:#FFF4D6; color:#B45309; }
+  .badge-success { background:#DCFCE7; color:#15803D; }
+
+  /* ---------- 深色展示卡（每屏 1 张）：光晕 + chip + 幽灵按钮 ---------- */
+  .feature { position:relative; display:flex; align-items:center; justify-content:space-between;
+    gap:32px; margin:48px 0; padding:48px 56px; border-radius:var(--r-card); overflow:hidden; color:#fff;
+    background:radial-gradient(90% 140% at 12% 0%, rgba(143,216,230,.20) 0%, transparent 55%),
+               radial-gradient(120% 160% at 85% 20%, #0F232B 0%, transparent 55%), var(--dark-teal); }
+  .feature .chip { display:inline-flex; align-items:center; height:24px; padding:0 12px;
+    border-radius:var(--r-chip); background:#1F4E5C; color:#8FD8E6; font-size:12px; font-weight:600; }
+  .feature h2 { margin:20px 0 10px; font-size:24px; }
+  .feature p { font-size:16px; line-height:1.65; color:rgba(255,255,255,.72); margin-bottom:28px; }
+  .feature .art { width:260px; flex:none; opacity:.9; position:static; transform:none; }
+  .feature .art svg { display:block; width:100%; height:auto; }
+  .btn-ghost { display:inline-flex; align-items:center; gap:10px; height:44px; padding:0 26px;
+    border:1.5px solid rgba(255,255,255,.6); border-radius:var(--r-pill);
+    background:transparent; color:#fff; font:600 15px var(--font); cursor:pointer;
+    transition:border-color 150ms ease-out, background-color 150ms ease-out; }
+  .btn-ghost:hover { border-color:#fff; background:rgba(255,255,255,.08); }
+
+  /* ---------- 今日活动 · 点线时间轴（图标块搁在点线上） ---------- */
+  .tl-head { display:flex; align-items:baseline; justify-content:space-between; margin:8px 0 24px; }
+  .tl-head h2 { font-size:24px; }
+  .tl-head span { font-size:13px; color:var(--weak); }
+  .timeline { display:flex; flex-direction:column; }
+  .row-card { display:flex; align-items:center; gap:24px; padding:24px 32px; cursor:pointer;
+    background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow-card);
+    transition:box-shadow 150ms ease-out, transform 150ms ease-out; }
+  .row-card:hover { box-shadow:0 10px 28px rgba(28,28,26,.1); transform:translateY(-1px); }
+  .row-main { flex:1; min-width:0; }
+  .row-title { font-size:17px; font-weight:700; }
+  .row-sub { font-size:13px; color:var(--weak); margin-top:4px; }
+  .row-value { font-size:24px; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; }
+  .dotline { display:flex; align-items:center; gap:8px; margin:8px 0 8px 96px; }
+  .dotline .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+  .dotline .line { flex:1; border-top:1.5px dashed #EAE8E3; }
+
+  /* ---------- Toast（白底 pill + 左侧彩色圆点，2.5s 淡出） ---------- */
+  .toast { position:fixed; top:24px; right:24px; display:flex; align-items:center; gap:10px;
+    height:44px; padding:0 20px; border-radius:16px; background:var(--card);
+    box-shadow:var(--shadow-card); font-size:14px; opacity:0; transform:translateY(-8px);
+    transition:opacity 200ms ease-out, transform 200ms ease-out; pointer-events:none; }
+  .toast.show { opacity:1; transform:translateY(0); }
+  .toast .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+
+  footer { margin-top:56px; text-align:center; font-size:13px; color:var(--weak); }
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- 顶栏：品牌 + 导航 + 主操作按钮 -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h6l3-7 4 14 3-7h2"/></svg>
+      </span>
+      Stride
+    </div>
+    <nav class="nav">
+      <a class="on" href="#">Dashboard</a><a href="#">Activities</a><a href="#">Plans</a>
+    </nav>
+    <button class="btn btn-primary" id="topCta" onclick="toast('Workout started — mic on')">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Log workout
+    </button>
+  </header>
+
+  <!-- Hero：双侧线稿插画 + Display + 信任条 -->
+  <section class="hero">
+    <div class="art art-left" aria-hidden="true">
+      <svg viewBox="0 0 340 320" fill="none" stroke="#1C1C1A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M170 290 C 116 252 82 218 82 174 C 82 138 110 112 146 112 C 158 112 168 116 170 120 C 172 116 182 112 194 112 C 230 112 258 138 258 174 C 258 218 224 252 170 290 Z"/>
+        <path d="M82 196 H 132 L 146 168 L 174 236 L 192 192 L 208 196 H 258"/>
+        <path d="M46 96 V 128 M30 112 H 62"/><path d="M282 78 V 106 M268 92 H 296"/>
+        <path d="M224 96 C 214 88 210 80 214 72 C 217 66 224 65 228 69 C 232 65 239 66 242 72 C 246 80 242 88 232 96 Z" fill="#A8E05F"/>
+      </svg>
+    </div>
+    <div class="art art-right" aria-hidden="true">
+      <svg viewBox="0 0 340 320" fill="none" stroke="#1C1C1A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M78 160 H 262"/>
+        <rect x="78" y="112" width="30" height="96" rx="14" fill="#A8E05F"/>
+        <rect x="120" y="132" width="24" height="56" rx="12"/>
+        <rect x="196" y="132" width="24" height="56" rx="12"/>
+        <rect x="232" y="112" width="30" height="96" rx="14" fill="#A8E05F"/>
+        <path d="M64 84 V 112 M50 98 H 78"/><path d="M276 208 V 236 M262 222 H 290"/>
+      </svg>
+    </div>
+    <h1>Move more.<br><span class="soft">Feel better.</span></h1>
+    <p>Your daily training log — steps, sessions and streaks in one place.<br>Small habits, big results.</p>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="toast('Today\u2019s session logged')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Log today's session
+      </button>
+      <button class="btn btn-outline" onclick="toast('Weekly plan opened')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+        View plan
+      </button>
+    </div>
+    <div class="trust">
+      <p style="font-size:13px;color:var(--weak)">Synced with your favorite gear</p>
+      <div class="trust-row"><span>Strava</span><span>WHOOP</span><span>Garmin</span><span>Fitbit</span><span>Peloton</span></div>
+    </div>
+  </section>
+
+  <!-- 统计行 -->
+  <section class="stats">
+    <div><div class="stat-label">Steps today</div><div class="stat-value">8,412</div></div>
+    <div><div class="stat-label">Active minutes</div><div class="stat-value">46</div></div>
+    <div><div class="stat-label">Calories</div><div class="stat-value">1,204</div></div>
+    <div><div class="stat-label">Streak (days)</div><div class="stat-value accent">21</div></div>
+  </section>
+
+  <!-- 分段控件 -->
+  <div class="toolbar">
+    <div class="segment" id="seg">
+      <button class="active" onclick="pick(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Today
+      </button>
+      <button onclick="pick(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> This week
+      </button>
+      <button onclick="pick(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="m9.5 14.5 2 2 3.5-4"/></svg> This month
+      </button>
+    </div>
+    <span style="font-size:13px;color:var(--weak)">Last synced 2 min ago</span>
+  </div>
+
+  <!-- 运动类型卡网格 -->
+  <section class="grid">
+    <div class="activity">
+      <div class="act-head">
+        <span class="icon-block" style="background:#232044">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3C6 3 5 5 5 8c0 3 1 5 3 5s3-2 3-5c0-3-1-5-3-5Z"/><path d="M16 10c-2 0-3 2-3 5 0 3 1 5 3 5s3-2 3-5c0-3-1-5-3-5Z"/></svg>
+        </span>
+        <span class="badge badge-new">Popular</span>
+      </div>
+      <h3>Running</h3>
+      <p class="sub">Outdoor intervals · 5 km loop</p>
+      <div class="act-foot"><span class="meta">28 min</span><span class="act-value">5.2 km</span></div>
+      <button class="btn-secondary" onclick="toast('Run logged — 5.2 km')">Log</button>
+    </div>
+    <div class="activity">
+      <div class="act-head">
+        <span class="icon-block" style="background:#16303A">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h3M22 6h-4M12 17.5V14l4-4 3 3M18.5 17.5 15 6M5.5 17.5 9 9h4"/></svg>
+        </span>
+      </div>
+      <h3>Cycling</h3>
+      <p class="sub">Riverside route · zone 2</p>
+      <div class="act-foot"><span class="meta">45 min</span><span class="act-value">18 km</span></div>
+      <button class="btn-secondary" onclick="toast('Ride logged — 18 km')">Log</button>
+    </div>
+    <div class="activity">
+      <div class="act-head">
+        <span class="icon-block" style="background:#3A2440">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r="2"/><path d="M12 8v5"/><path d="M6 19c1-4 3-6 6-6s5 2 6 6"/><path d="M5 19h14"/></svg>
+        </span>
+        <span class="badge badge-star">New</span>
+      </div>
+      <h3>Yoga</h3>
+      <p class="sub">Vinyasa flow · mobility</p>
+      <div class="act-foot"><span class="meta">30 min</span><span class="act-value">315 kcal</span></div>
+      <button class="btn-secondary" onclick="toast('Yoga session logged')">Log</button>
+    </div>
+    <div class="activity">
+      <div class="act-head">
+        <span class="icon-block" style="background:#1E2B26">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="5" height="6" rx="2"/><rect x="6" y="7" width="4" height="10" rx="2"/><rect x="14" y="7" width="4" height="10" rx="2"/><rect x="16" y="9" width="5" height="6" rx="2"/><path d="M10 12h4"/></svg>
+        </span>
+        <span class="badge badge-success">Recommended</span>
+      </div>
+      <h3>Strength</h3>
+      <p class="sub">Full body · 3 sets</p>
+      <div class="act-foot"><span class="meta">40 min</span><span class="act-value">12 sets</span></div>
+      <button class="btn-secondary" onclick="toast('Strength session logged')">Log</button>
+    </div>
+    <div class="activity">
+      <div class="act-head">
+        <span class="icon-block" style="background:#232044">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M3 14c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M3 19c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg>
+        </span>
+      </div>
+      <h3>Swimming</h3>
+      <p class="sub">Lap pool · freestyle</p>
+      <div class="act-foot"><span class="meta">35 min</span><span class="act-value">1.4 km</span></div>
+      <button class="btn-secondary" onclick="toast('Swim logged — 1.4 km')">Log</button>
+    </div>
+  </section>
+
+  <!-- 深色展示卡（每屏 1 张）：每周推荐 · 晨跑挑战 -->
+  <article class="feature">
+    <div>
+      <span class="chip">Weekly pick · Live</span>
+      <h2>Morning Run Challenge</h2>
+      <p>5 km before sunrise, five days this week.<br>Beat the heat and keep your streak alive.</p>
+      <button class="btn-ghost" onclick="toast('Joining Morning Run Challenge')">Join challenge
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="art" aria-hidden="true">
+      <svg viewBox="0 0 420 300" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="210" cy="132" r="56" fill="#A8E05F"/>
+        <path d="M210 52 V 24 M150 66 L 132 48 M270 66 L 288 48 M126 132 H 98 M294 132 H 322"/>
+        <path d="M56 212 C 104 178 154 178 210 212 C 266 178 316 178 364 212"/>
+        <path d="M56 212 H 364"/>
+        <path d="M56 252 H 116 L 138 210 L 166 278 L 192 252 H 364"/>
+      </svg>
+    </div>
+  </article>
+
+  <!-- 今日活动 · 点线时间轴 -->
+  <div class="tl-head">
+    <h2>Today's activity</h2>
+    <span>3 sessions · latest 40 min ago</span>
+  </div>
+  <section class="timeline">
+    <div class="row-card" onclick="toast('Opened run details')">
+      <span class="icon-block" style="background:#232044">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3C6 3 5 5 5 8c0 3 1 5 3 5s3-2 3-5c0-3-1-5-3-5Z"/><path d="M16 10c-2 0-3 2-3 5 0 3 1 5 3 5s3-2 3-5c0-3-1-5-3-5Z"/></svg>
+      </span>
+      <div class="row-main">
+        <div class="row-title">Morning run · Riverside</div>
+        <div class="row-sub">Today 7:05 · pace 5'10" · 5.2 km</div>
+      </div>
+      <span class="row-value">28 min</span>
+    </div>
+    <div class="dotline"><span class="dot"></span><span class="line"></span></div>
+    <div class="row-card" onclick="toast('Opened strength details')">
+      <span class="icon-block" style="background:#1E2B26">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="5" height="6" rx="2"/><rect x="6" y="7" width="4" height="10" rx="2"/><rect x="14" y="7" width="4" height="10" rx="2"/><rect x="16" y="9" width="5" height="6" rx="2"/><path d="M10 12h4"/></svg>
+      </span>
+      <div class="row-main">
+        <div class="row-title">Strength · Full body</div>
+        <div class="row-sub">Today 12:20 · 3 sets · 12 reps</div>
+      </div>
+      <span class="row-value">12 sets</span>
+    </div>
+    <div class="dotline"><span class="dot"></span><span class="line"></span></div>
+    <div class="row-card" onclick="toast('Opened yoga details')">
+      <span class="icon-block" style="background:#3A2440">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5.5" r="2"/><path d="M12 8v5"/><path d="M6 19c1-4 3-6 6-6s5 2 6 6"/><path d="M5 19h14"/></svg>
+      </span>
+      <div class="row-main">
+        <div class="row-title">Yoga · Vinyasa flow</div>
+        <div class="row-sub">Today 20:40 · mobility · stretch</div>
+      </div>
+      <span class="row-value">30 min</span>
+    </div>
+  </section>
+
+  <footer>UI Concept Design · fitness dashboard example — values from tokens/design-tokens.md</footer>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span class="dot"></span><span id="toastText"></span></div>
+
+<script>
+  /* 分段控件：白胶囊浮起切换 */
+  function pick(btn) {
+    document.querySelectorAll('#seg button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  /* Toast：2.5s 淡出（tokens §6） */
+  let toastTimer;
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastText').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>

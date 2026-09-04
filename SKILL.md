@@ -34,7 +34,7 @@ description: "模板驱动的现代 UI 设计系统（桌面/移动/Web 原型�
 | **(补) 插画 Illustration** | 手绘线稿（2.5px ink 线，圆头）为视觉锚点：气球/日历/星星/旋律线；单色填涂 pop-green，每屏 1-2 处；英雄区两侧对称构图 | ref-landing-hero-light |
 | **(补) 尺度 Scale** | Display 48-56px、Stat 32px+、按钮 48px 高、分段 56px 高；卡片内边距 32；留白"多到怀疑人生"为止 | ref-portfolio-grid |
 | **(补) 信任条 Trust bar** | hero 下方一排灰色品牌字（弱化 60%）+ caption 文案，视觉压舱 | ref-landing-hero-light |
-| **(补) 点线时间轴 Dotted timeline** | 列表卡/记录卡用竖向点线串联图标块，点=当前位置，线=轨迹 | ref-card-light-timeline |
+| **(补) 点线时间轴 Dotted timeline** | 列表卡/记录卡用竖向点线串联图标块，点=当前位置，线=轨迹；**线左缩进 = 图标块中心对齐 = 96px**（56 图标/2 + 32 卡内边距 + 8 —— 8 的倍数）｜ref-card-light-timeline |
 
 ## 二、工作流程（每次构建/改版都走这六步）
 
@@ -58,8 +58,9 @@ description: "模板驱动的现代 UI 设计系统（桌面/移动/Web 原型�
 - **深色展示卡**（仅封面/重点推荐）→ tokens §1 有色深色卡，同色系 badge（chip）+ 微光晕，**卡内插图用产品照片或插画，别空着**｜ref-dark-colored-cards
 - **危险操作**（删除）→ PillButton 白底 error 红字（不是红底！），hover 才 `#FEF2F2` 浅红底
 - **空状态** → 线性简笔图标（weak 色 1.5px 线）+ Title 提示 + Caption 引导语，垂直居中
-- **多个有先后关系的记录/步骤** → 竖向点线时间轴：图标块搁在点线上，下一条连接｜ref-card-light-timeline
+- **多个有先后关系的记录/步骤** → 竖向点线时间轴：图标块搁在点线上，下一条连接；**点线左缩进 96px**（与图标块中心对齐）｜ref-card-light-timeline
 - **hero/首页** → 两侧对称大幅线稿插画 + 居中大标题 + 纸面白描边副按钮 + 底部品牌信任条｜ref-landing-hero-light
+- **Web / 移动原型** → 从 `examples/web/`（landing/practice/fitness）或 `examples/app/`（home/speaking/report）**克隆改造**，任意平台都直接照 tokens 写 CSS——五态视觉参照以这些文件的 hover/pressed/active 为准，loading/disabled 用低透明度（`opacity .45`）实现
 
 ## 四、验收清单（全部答"是"才算完成）
 
