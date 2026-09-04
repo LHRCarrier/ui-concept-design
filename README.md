@@ -17,6 +17,10 @@
 
 ![Practice 示例](https://github.com/LHRCarrier/ui-concept-design/raw/master/assets/screenshot-practice.png)
 
+**App 移动端页面** —— 底部浮动 Tab 栏、全宽分段控件、对话气泡 + 语言点 chip、录音大按钮（波纹动效）、深紫评分卡、四维统计行（源码见 `examples/app/`，三个手机页面并排）：
+
+![App 示例](https://github.com/LHRCarrier/ui-concept-design/raw/master/assets/app-screens.png)
+
 ## 特性
 
 - **精确设计令牌**：色板 / 圆角 / 字号 / 间距 / 组件规格全部查表取值，禁止"差不多"。
@@ -39,9 +43,13 @@
 │       └── ThemeControls.cs  # 组件代码骨架（PillButton / CardPanel / SegmentedControl / Badge 等）
 ├── examples/
 │   ├── README.md             # 图标库选型（Lucide/Tabler/Phosphor）与动效库（Motion/Magic UI/Hover.css）
-│   └── web/
-│       ├── landing.html      # 单文件可运行的 Landing 示例
-│       └── practice.html     # 单文件可运行的练习页示例
+│   ├── web/
+│   │   ├── landing.html      # 单文件可运行的 Landing 示例
+│   │   └── practice.html     # 单文件可运行的练习页示例
+│   └── app/                  # 移动端 App 示例（390px 手机视口）
+│       ├── home.html         # 今日学习主页（底部浮动 Tab 栏）
+│       ├── speaking.html     # 场景对话（气泡 + 录音大按钮）
+│       └── report.html       # 唱歌评分报告（深色卡 + 统计行）
 └── assets/                   # README 效果展示截图
 ```
 
