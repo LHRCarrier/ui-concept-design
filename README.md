@@ -11,11 +11,11 @@
 
 **Landing 页** —— 双侧手绘线稿插画 hero、胶囊按钮（hover 颜色插值）、信任条、统计数据行、分段控件、点线时间轴列表卡、toast 微交互
 
-![Landing 示例](assets/screenshot-landing.png)
+![Landing 示例](https://github.com/LHRCarrier/ui-concept-design/raw/master/assets/screenshot-landing.png)
 
 **Speaking Practice 页** —— 56px 分段控件、深藏青推荐卡（chip badge + 幽灵按钮 + 光晕）、场景卡网格（实色图标块）、统计行
 
-![Practice 示例](assets/screenshot-practice.png)
+![Practice 示例](https://github.com/LHRCarrier/ui-concept-design/raw/master/assets/screenshot-practice.png)
 
 ## 特性
 
