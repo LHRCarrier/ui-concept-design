@@ -2,17 +2,29 @@
 
 模板驱动的现代桌面 UI 设计系统 —— 明亮通透、大圆角、胶囊按钮风。
 
-设计参考帧（`references/`）、精确设计令牌（`tokens/`）与 WinForms 组件代码模板（`templates/`）三位一体：
+设计参考帧（`references/`）、精确设计令牌（`tokens/`）与代码模板（`templates/`、`examples/`）三位一体：
 **只凭抽象原则写出来的 UI 一定平庸，必须对着参考帧和 tokens 做。**
+
+## 效果展示
+
+使用本系统实现的完整页面（源码见 `examples/web/`，单文件可运行）：
+
+**Landing 页** —— 双侧手绘线稿插画 hero、胶囊按钮（hover 颜色插值）、信任条、统计数据行、分段控件、点线时间轴列表卡、toast 微交互
+
+![Landing 示例](assets/screenshot-landing.png)
+
+**Speaking Practice 页** —— 56px 分段控件、深藏青推荐卡（chip badge + 幽灵按钮 + 光晕）、场景卡网格（实色图标块）、统计行
+
+![Practice 示例](assets/screenshot-practice.png)
 
 ## 特性
 
-- 🎨 **精确设计令牌**：色板 / 圆角 / 字号 / 间距 / 组件规格全部查表取值，禁止"差不多"。
-- 🖼 **7 张内置参考帧**：覆盖首页英雄区、分段控件、统计卡、时间线卡、图片卡、深色展示卡等主要界面形态，动手前必看。
-- 🧩 **组件决策树**：要做什么 → 用哪个模板 / 参考帧 / 组件，减少空白区的即兴发挥。
-- 🪟 **WinForms 代码模板**：`Theme.cs`（唯一色板来源）+ 组件骨架（PillButton / CardPanel / SegmentedControl / Badge / Toast / 遮罩弹窗）。
-- 🧰 **完整源码示例**：`examples/web/landing.html` 单文件可运行（插画 hero / 胶囊按钮 / 分段控件 / 统计行 / 列表卡 / toast，含微交互动效）；`examples/README.md` 提供图标库与动效库的开源选型。
-- ✅ **验收清单**：8 条可自检的问答，全部答"是"才算完成。
+- **精确设计令牌**：色板 / 圆角 / 字号 / 间距 / 组件规格全部查表取值，禁止"差不多"。
+- **7 张内置参考帧**：覆盖首页英雄区、分段控件、统计卡、时间线卡、图片卡、深色展示卡等主要界面形态，动手前必看。
+- **组件决策树**：要做什么 → 用哪个模板 / 参考帧 / 组件，减少空白区的即兴发挥。
+- **WinForms 代码模板**：`Theme.cs`（唯一色板来源）+ 组件骨架（PillButton / CardPanel / SegmentedControl / Badge / Toast / 遮罩弹窗），已通过编译与运行时渲染验证。
+- **完整源码示例**：`examples/web/` 下两个单文件页面（landing / practice），含微交互动效，全部值来自 tokens；`examples/README.md` 提供图标库与动效库的开源选型。
+- **验收清单**：8 条可自检的问答，全部答"是"才算完成。
 
 ## 目录结构
 
@@ -25,9 +37,12 @@
 │   └── winforms/
 │       ├── Theme.cs          # 色板与字体令牌代码（WinForms 唯一来源）
 │       └── ThemeControls.cs  # 组件代码骨架（PillButton / CardPanel / SegmentedControl / Badge 等）
-└── examples/                 # 开源素材索引 + 完整源码示例
-    ├── README.md             # 图标库选型（Lucide/Tabler/Phosphor）与动效库（Motion/Magic UI/Hover.css）
-    └── web/landing.html      # 单文件可运行的 Web 完整示例（hero/分段控件/统计行/列表卡/toast）
+├── examples/
+│   ├── README.md             # 图标库选型（Lucide/Tabler/Phosphor）与动效库（Motion/Magic UI/Hover.css）
+│   └── web/
+│       ├── landing.html      # 单文件可运行的 Landing 示例
+│       └── practice.html     # 单文件可运行的练习页示例
+└── assets/                   # README 效果展示截图
 ```
 
 ## 快速上手
@@ -38,20 +53,6 @@
 4. **套组件模板**：WinForms 从 `templates/winforms/` 复制组件骨架起步；Web 直接按 tokens 写 CSS。
 5. **跑起来截图**，与参考帧并排对比（圆角够大吗？按钮是胶囊吗？有插画锚点吗？留白够吗？）。
 6. **不达标就回到第 1 步**。
-
-## 示例
-
-将本仓库的 `SKILL.md` 与 `tokens/` 对照参考帧实现后，可产出类似这样的界面：
-
-| 界面形态 | 参考帧 |
-|---|---|
-| 首页英雄区（双侧线稿插画 + 居中大标题 + 胶囊按钮 + 信任条） | `references/ref-landing-hero-light.webp` |
-| 分段控件（track 底大胶囊 + 白胶囊浮起选中） | `references/ref-segmented-pill.webp` |
-| 资料卡 + 统计行（大数字 + 星标评分） | `references/ref-profile-card-stats.webp` |
-| 列表卡 / 点线时间轴 | `references/ref-card-light-timeline.webp` |
-| 图片卡（文字压图 + 幽灵描边按钮） | `references/ref-image-card-overlay.webp` |
-| 有色深色展示卡 | `references/ref-dark-colored-cards.webp` |
-| 作品网格页 | `references/ref-portfolio-grid.webp` |
 
 ## 参考帧说明
 

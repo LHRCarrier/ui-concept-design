@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Concept Design · Practice 示例</title>
+<!--
+  UI Concept Design 设计系统 · 完整源码示例 ②（单文件，双击即可打开）
+  页面：分段控件(56px) + 深色推荐卡(chip badge + 幽灵按钮) + 场景卡网格(实色图标块) + 空状态。
+  全部取值来自 ../tokens/design-tokens.md；图标为内联 SVG（Lucide 风格 1.5px 描边）。
+-->
+<style>
+  :root {
+    --paper:#F5F4F1; --card:#FFFFFF; --ink:#1C1C1A; --ink-hover:#333330;
+    --sub:#6F6F6A; --weak:#A6A6A0; --track:#ECEAE5; --track-hover:#E2E0DA;
+    --accent:#2F6BFF; --star:#FFC83D; --pop-green:#A8E05F;
+    --dark-navy:#232044; --dark-purple:#3A2440;
+    --r-card:24px; --r-pill:999px; --r-chip:12px;
+    --shadow-card:0 8px 24px rgba(28,28,26,.06);
+    --shadow-float:0 2px 8px rgba(28,28,26,.08);
+    --font:'Segoe UI','Microsoft YaHei UI','Microsoft YaHei',sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--font); background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .page { max-width:1080px; margin:0 auto; padding:56px 40px; }
+
+  /* 页头 */
+  .head { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:40px; }
+  .head h1 { font-size:56px; font-weight:700; letter-spacing:-1px; }
+  .head p { margin-top:12px; font-size:16px; color:var(--sub); }
+
+  /* 分段控件（56px，白胶囊浮起） */
+  .segment { display:inline-flex; align-items:center; gap:4px; height:56px; padding:4px;
+    background:var(--track); border-radius:var(--r-pill); }
+  .segment button { display:inline-flex; align-items:center; gap:12px; height:48px; padding:0 24px;
+    border:none; border-radius:var(--r-pill); background:transparent; color:var(--sub);
+    font:600 16px var(--font); cursor:pointer;
+    transition:background-color 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out; }
+  .segment button:hover { color:var(--ink); }
+  .segment button.active { background:var(--card); color:var(--ink); box-shadow:var(--shadow-float); }
+  .segment svg { width:24px; height:24px; }
+
+  /* 深色推荐卡（每屏 1 张）：光晕 + chip + 幽灵按钮 */
+  .feature { position:relative; display:flex; align-items:center; justify-content:space-between;
+    gap:32px; margin:40px 0; padding:48px 56px; border-radius:var(--r-card); overflow:hidden; color:#fff;
+    background:radial-gradient(90% 140% at 12% 0%, rgba(185,168,255,.22) 0%, transparent 55%),
+               radial-gradient(120% 160% at 85% 20%, #2F2B5E 0%, transparent 55%), var(--dark-navy); }
+  .feature .chip { display:inline-flex; align-items:center; height:24px; padding:0 12px;
+    border-radius:var(--r-chip); background:#4C3A6E; color:#B9A8FF; font-size:12px; font-weight:600; }
+  .feature h2 { margin:20px 0 10px; font-size:24px; }
+  .feature p { font-size:16px; line-height:1.65; color:rgba(255,255,255,.72); margin-bottom:28px; }
+  .feature .art { width:240px; flex:none; opacity:.9; }
+  .feature .art svg { display:block; width:100%; height:auto; }
+  .btn-ghost { display:inline-flex; align-items:center; gap:10px; height:44px; padding:0 24px;
+    border:1.5px solid rgba(255,255,255,.6); border-radius:var(--r-pill);
+    background:transparent; color:#fff; font:600 15px var(--font); cursor:pointer;
+    transition:border-color 150ms ease-out, background-color 150ms ease-out; }
+  .btn-ghost:hover { border-color:#fff; background:rgba(255,255,255,.08); }
+
+  /* 场景卡网格 */
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .scene { display:flex; flex-direction:column; padding:32px; background:var(--card);
+    border-radius:var(--r-card); box-shadow:var(--shadow-card);
+    transition:box-shadow 150ms ease-out, transform 150ms ease-out; }
+  .scene:hover { box-shadow:0 10px 28px rgba(28,28,26,.1); transform:translateY(-1px); }
+  .scene .icon-block { width:56px; height:56px; border-radius:16px; flex:none;
+    display:inline-flex; align-items:center; justify-content:center; color:#fff; margin-bottom:20px; }
+  .scene h3 { font-size:18px; margin-bottom:6px; }
+  .scene .sub { font-size:14px; color:var(--sub); flex:1; }
+  .scene .meta { margin:20px 0; font-size:13px; color:var(--weak); }
+  .btn-secondary { display:inline-flex; align-items:center; gap:10px; height:44px; padding:0 24px;
+    border:none; border-radius:var(--r-pill); background:var(--track); color:var(--ink);
+    font:600 15px var(--font); cursor:pointer; align-self:flex-start;
+    transition:background-color 150ms ease-out; }
+  .btn-secondary:hover { background:var(--track-hover); }
+  .badge { display:inline-flex; align-items:center; height:24px; padding:0 12px; border-radius:var(--r-pill);
+    font-size:12px; font-weight:600; }
+  .badge-new { background:#E8EDFF; color:var(--accent); }
+  .badge-star { background:#FFF4D6; color:#B45309; }
+  .badge-success { background:#DCFCE7; color:#15803D; }
+  .scene .head { display:flex; justify-content:space-between; align-items:flex-start; margin:0 0 20px; }
+
+  /* 统计行 */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:24px; padding:32px 40px;
+    background:var(--card); border-radius:var(--r-card); box-shadow:var(--shadow-card); margin-top:24px; }
+  .stat-label { font-size:13px; color:var(--weak); }
+  .stat-value { font-size:32px; font-weight:700; }
+  .stat-value.accent { color:var(--accent); }
+
+  footer { margin-top:56px; text-align:center; font-size:13px; color:var(--weak); }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="head">
+    <div>
+      <h1>Speaking Practice</h1>
+      <p>Pick a scene and start talking with the AI coach.</p>
+    </div>
+    <button class="btn-ghost" style="border-color:rgba(28,28,26,.15);color:var(--ink)" onclick="toast('Mic is ready')">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      Start dialog
+    </button>
+  </header>
+
+  <!-- 分段控件 -->
+  <div class="segment" id="seg">
+    <button class="active" onclick="pick(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/></svg> Daily
+    </button>
+    <button onclick="pick(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M4 13h16"/></svg> Work
+    </button>
+    <button onclick="pick(this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v17H7.5A2.5 2.5 0 0 0 5 21.5z"/><path d="M5 17.5A2.5 2.5 0 0 1 7.5 15H19"/></svg> Study
+    </button>
+  </div>
+
+  <!-- 深色推荐卡：chip + 幽灵按钮 -->
+  <article class="feature">
+    <div>
+      <span class="chip">Today's pick</span>
+      <h2>AI Tutor · Weekly Theme</h2>
+      <p>Travel English: check-in, ordering, directions.<br>Learn it and use it right away.</p>
+      <button class="btn-ghost" onclick="toast('Starting Travel English')">Try now
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+    <div class="art" aria-hidden="true">
+      <svg viewBox="0 0 320 340" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M196 28 L 196 184"/><path d="M196 28 C 196 28 232 40 252 60 C 262 70 264 92 250 102"/>
+        <ellipse cx="186" cy="196" rx="34" ry="26"/>
+        <ellipse cx="250" cy="118" rx="30" ry="24"/>
+        <path d="M110 96 L 88 128 M96 72 L 70 96" stroke-width="2"/><path d="M92 236 C 120 214 200 214 232 240" stroke-width="2"/>
+      </svg>
+    </div>
+  </article>
+
+  <!-- 场景卡网格 -->
+  <section class="grid">
+    <div class="scene">
+      <div class="head">
+        <span class="icon-block" style="background:#3A2440">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/></svg>
+        </span>
+        <span class="badge badge-new">Popular</span>
+      </div>
+      <h3>Coffee Shop</h3>
+      <p class="sub">Order a latte and chat with the barista.</p>
+      <div class="meta">L3 · 3 min · 8 rounds</div>
+      <button class="btn-secondary" onclick="toast('Scene started: Coffee Shop')">Practice</button>
+    </div>
+    <div class="scene">
+      <div class="head">
+        <span class="icon-block" style="background:#16303A">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10.5 12.5L4 9l1.5-1.5L13 9.5l4.5-4.5a1.8 1.8 0 0 1 2.5 2.5L15.5 12l2 7.5-1.5 1.5-3.5-6.5z"/></svg>
+        </span>
+        <span class="badge badge-star">New</span>
+      </div>
+      <h3>Airport Check-in</h3>
+      <p class="sub">Baggage drop and gate change handling.</p>
+      <div class="meta">L4 · 4 min · 10 rounds</div>
+      <button class="btn-secondary" onclick="toast('Scene started: Airport Check-in')">Practice</button>
+    </div>
+    <div class="scene">
+      <div class="head">
+        <span class="icon-block" style="background:#232044">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v17H7.5A2.5 2.5 0 0 0 5 21.5z"/><path d="M5 17.5A2.5 2.5 0 0 1 7.5 15H19"/></svg>
+        </span>
+        <span class="badge badge-success">Recommended</span>
+      </div>
+      <h3>Job Interview</h3>
+      <p class="sub">From "who I am" to "what I can do" in 1 min.</p>
+      <div class="meta">L4 · 4 min · 10 rounds</div>
+      <button class="btn-secondary" onclick="toast('Scene started: Job Interview')">Practice</button>
+    </div>
+  </section>
+
+  <!-- 统计行 -->
+  <section class="stats">
+    <div><div class="stat-label">Streak (days)</div><div class="stat-value">12</div></div>
+    <div><div class="stat-label">Total rounds</div><div class="stat-value">38</div></div>
+    <div><div class="stat-label">Avg score</div><div class="stat-value accent">86.4</div></div>
+    <div><div class="stat-label">Weekly goal</div><div class="stat-value">5 / 7</div></div>
+  </section>
+
+  <footer>UI Concept Design · practice example — values from tokens/design-tokens.md</footer>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast" style="position:fixed;top:24px;right:24px;display:flex;align-items:center;gap:10px;height:44px;padding:0 20px;border-radius:16px;background:var(--card);box-shadow:var(--shadow-card);font-size:14px;opacity:0;transform:translateY(-8px);transition:opacity 200ms ease-out,transform 200ms ease-out;pointer-events:none;">
+  <span style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></span><span id="toastText"></span>
+</div>
+
+<script>
+  function pick(btn){ document.querySelectorAll('#seg button').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  let tt;
+  function toast(msg){ const t=document.getElementById('toast'); document.getElementById('toastText').textContent=msg;
+    t.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2500); }
+</script>
+</body>
+</html>
