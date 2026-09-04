@@ -78,3 +78,5 @@ description: "模板驱动的现代桌面 UI 设计系统：以内置设计参�
 - `tokens/design-tokens.md` — 精确色值/圆角/字号/间距/组件规格
 - `templates/winforms/Theme.cs` — 色板与字体令牌代码（WinForms 唯一来源；Web 项目跳过）
 - `templates/winforms/ThemeControls.cs` — PillButton / CardPanel / SegmentedControl / Badge / Toast / 遮罩弹窗 代码骨架（WinForms 专用；Web 项目跳过）
+- `examples/README.md` — 开源素材索引：图标库选型（Lucide/Tabler/Phosphor）与动效库（Motion/Magic UI/Hover.css）选用规则
+- `examples/web/landing.html` — **完整 Web 源码示例**（单文件可运行）：hero 插画 + 胶囊按钮 + 分段控件 + 统计行 + 列表卡 + toast，全部值来自 tokens

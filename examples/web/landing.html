@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Concept Design · Landing 示例</title>
+<!--
+  UI Concept Design 设计系统 · 完整源码示例（单文件，双击即可打开）
+  全部取值来自 ../tokens/design-tokens.md；图标为内联 SVG（Lucide 风格 1.5px 描边）。
+  本节演示：hero 双侧线稿插画 + 胶囊按钮(hover 插值) + 分段控件(白胶囊浮起) + 统计行 + 列表卡 + toast。
+-->
+<style>
+  :root {
+    /* tokens §1-§5（与 design-tokens.md 严格一致） */
+    --paper: #F5F4F1; --card: #FFFFFF; --ink: #1C1C1A; --ink-hover: #333330;
+    --sub: #6F6F6A; --weak: #A6A6A0; --track: #ECEAE5; --track-hover: #E2E0DA;
+    --accent: #2F6BFF; --star: #FFC83D; --pop-green: #A8E05F;
+    --r-card: 24px; --r-pill: 999px;
+    --shadow-card: 0 8px 24px rgba(28,28,26,.06);
+    --shadow-float: 0 2px 8px rgba(28,28,26,.08);
+    --font: 'Segoe UI', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--paper); color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .page { max-width: 1080px; margin: 0 auto; padding: 56px 40px; }
+
+  /* ---------- 顶栏 ---------- */
+  .topbar { display: flex; align-items: center; gap: 24px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .brand-mark { width: 44px; height: 44px; border-radius: 14px; background: var(--ink); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; }
+  .nav { display: flex; gap: 24px; margin-left: 24px; flex: 1; }
+  .nav a { color: var(--sub); text-decoration: none; font-size: 15px; transition: color 150ms ease-out; }
+  .nav a:hover { color: var(--ink); }
+
+  /* ---------- 胶囊按钮（150ms 颜色插值） ---------- */
+  .btn { display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 32px;
+    border: none; border-radius: var(--r-pill); font: 600 15px var(--font); cursor: pointer;
+    transition: background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out; }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-primary:hover { background: var(--ink-hover); }
+  .btn-primary:active { background: #000; }
+  .btn-outline { background: var(--card); color: var(--ink); border: 1.5px solid rgba(28,28,26,.85); }
+  .btn-outline:hover { background: #FAFAF8; border-color: rgba(28,28,26,.6); }
+
+  /* ---------- Hero ---------- */
+  .hero { position: relative; text-align: center; padding: 128px 40px 96px; }
+  .hero h1 { font-size: 56px; font-weight: 700; letter-spacing: -1px; line-height: 1.12; }
+  .hero h1 .soft { color: var(--sub); }
+  .hero p { margin-top: 24px; font-size: 16px; line-height: 1.65; color: var(--sub); }
+  .hero .actions { margin-top: 40px; display: flex; justify-content: center; gap: 16px; }
+  /* 双侧线稿插画（手绘感：2.5px ink 圆头线 + pop-green 填涂） */
+  .art { position: absolute; top: 50%; width: 280px; transform: translateY(-52%); }
+  .art svg { display: block; width: 100%; height: auto; transition: transform 200ms ease-out; }
+  .art:hover svg { transform: translateY(-4px); }
+  .art-left { left: -40px; }
+  .art-right { right: -40px; }
+  /* 信任条（弱化 60%） */
+  .trust { margin-top: 64px; }
+  .trust-row { margin-top: 16px; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+  .trust-row span { font-weight: 700; color: var(--weak); opacity: .6; }
+
+  /* ---------- 统计行 ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; padding: 32px 40px;
+    background: var(--card); border-radius: var(--r-card); box-shadow: var(--shadow-card); }
+  .stat-label { font-size: 13px; color: var(--weak); }
+  .stat-value { font-size: 32px; font-weight: 700; color: var(--ink); }
+  .stat-value.accent { color: var(--accent); }
+
+  /* ---------- 分段控件（白胶囊浮起） ---------- */
+  .toolbar { display: flex; align-items: center; justify-content: space-between; margin: 48px 0 24px; }
+  .segment { display: inline-flex; align-items: center; gap: 4px; height: 56px; padding: 4px;
+    background: var(--track); border-radius: var(--r-pill); }
+  .segment button { display: inline-flex; align-items: center; gap: 12px; height: 48px; padding: 0 24px;
+    border: none; border-radius: var(--r-pill); background: transparent; color: var(--sub);
+    font: 600 16px var(--font); cursor: pointer;
+    transition: background-color 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out; }
+  .segment button:hover { color: var(--ink); }
+  .segment button.active { background: var(--card); color: var(--ink); box-shadow: var(--shadow-float); }
+
+  /* ---------- 列表卡（点线时间轴） ---------- */
+  .list { display: flex; flex-direction: column; }
+  .row-card { display: flex; align-items: center; gap: 24px; padding: 24px 32px; cursor: pointer;
+    background: var(--card); border-radius: var(--r-card); box-shadow: var(--shadow-card);
+    transition: box-shadow 150ms ease-out, transform 150ms ease-out; }
+  .row-card:hover { box-shadow: 0 10px 28px rgba(28,28,26,.1); transform: translateY(-1px); }
+  .icon-block { width: 56px; height: 56px; border-radius: 16px; flex: none;
+    display: inline-flex; align-items: center; justify-content: center; color: #fff; }
+  .row-main { flex: 1; min-width: 0; }
+  .row-title { font-size: 17px; font-weight: 700; }
+  .row-sub { font-size: 13px; color: var(--weak); margin-top: 4px; }
+  .row-value { font-size: 24px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .dotline { display: flex; align-items: center; gap: 8px; margin: 8px 0 8px 95px; }
+  .dotline .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .dotline .line { flex: 1; border-top: 1.5px dashed #EAE8E3; }
+
+  /* ---------- Toast ---------- */
+  .toast { position: fixed; top: 24px; right: 24px; display: flex; align-items: center; gap: 10px;
+    height: 44px; padding: 0 20px; border-radius: 16px; background: var(--card);
+    box-shadow: var(--shadow-card); font-size: 14px; opacity: 0; transform: translateY(-8px);
+    transition: opacity 200ms ease-out, transform 200ms ease-out; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+  footer { margin-top: 56px; text-align: center; font-size: 13px; color: var(--weak); }
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round"><path d="M3 12h2M7 8v8M11 5v14M15 8v8M19 12h2"/></svg>
+      </span>
+      Voice Studio
+    </div>
+    <nav class="nav">
+      <a href="#">Practice</a><a href="#">Singing</a><a href="#">Reports</a>
+    </nav>
+    <button class="btn btn-primary" style="height:44px;padding:0 24px" id="topCta">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      Start today
+    </button>
+  </header>
+
+  <!-- Hero：双侧线稿插画 + Display + 胶囊按钮 -->
+  <section class="hero">
+    <div class="art art-left" aria-hidden="true">
+      <svg viewBox="0 0 320 340" fill="none" stroke="#1C1C1A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M160 24 C 96 24 52 92 52 156 C 52 220 96 268 160 268 C 224 268 268 220 268 156 C 268 92 224 24 160 24 Z"/>
+        <path d="M160 24 C 130 84 130 220 160 268"/><path d="M160 24 C 194 84 194 220 160 268"/>
+        <path d="M82 92 C 120 140 200 140 238 92"/><path d="M62 168 C 110 206 210 206 258 168"/>
+        <path d="M160 268 L 128 292 M160 268 L 160 292 M160 268 L 192 292"/><path d="M128 292 L 192 292"/>
+        <path d="M104 292 L 104 322 C 104 330 112 336 120 336 L 200 336 C 208 336 216 330 216 322 L 216 292 Z" fill="#A8E05F"/>
+      </svg>
+    </div>
+    <div class="art art-right" aria-hidden="true">
+      <svg viewBox="0 0 320 340" fill="none" stroke="#1C1C1A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M76 92 L 76 60 C 76 46 88 36 102 36 L 218 36 C 232 36 244 46 244 60 L 244 92" fill="#fff"/>
+        <rect x="76" y="92" width="168" height="188" rx="20" fill="#fff"/>
+        <path d="M92 168 L 228 168 L 228 252 L 92 252 Z"/><path d="M138 168 L 138 252 M184 168 L 184 252 M92 210 L 228 210"/>
+        <path d="M106 178 L 122 194 L 148 166"/>
+        <path d="M104 226 L 104 248 L 134 248 L 134 226 Z" fill="#A8E05F"/>
+        <circle cx="124" cy="26" r="12" fill="#fff"/><circle cx="196" cy="26" r="12" fill="#fff"/>
+      </svg>
+    </div>
+    <h1>Speak well.<br><span class="soft">Sing on pitch.</span></h1>
+    <p>AI tutor for daily conversation practice, line-by-line song scoring.<br>Every scene in life is your practice stage.</p>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="toast('Practice started - mic is ready')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        Start speaking
+      </button>
+      <button class="btn btn-outline" onclick="toast('Report opened')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 20V4M4 20h16"/><path d="M8 16v-5M12 16V7M16 16v-3"/></svg>
+        View report
+      </button>
+    </div>
+    <div class="trust">
+      <p style="font-size:13px;color:var(--weak)">Trusted by learners worldwide</p>
+      <div class="trust-row"><span>Duolingo</span><span>Speak</span><span>ELSA</span><span>Cake</span><span>HelloTalk</span></div>
+    </div>
+  </section>
+
+  <!-- 统计行 -->
+  <section class="stats">
+    <div><div class="stat-label">Streak (days)</div><div class="stat-value">12</div></div>
+    <div><div class="stat-label">Total rounds</div><div class="stat-value">38</div></div>
+    <div><div class="stat-label">Avg score</div><div class="stat-value accent">86.4</div></div>
+    <div><div class="stat-label">Weekly goal</div><div class="stat-value">5 / 7</div></div>
+  </section>
+
+  <!-- 分段控件（点击切换 active） -->
+  <div class="toolbar">
+    <div class="segment" id="seg">
+      <button class="active" onclick="pick(this)">All</button>
+      <button onclick="pick(this)">Speaking</button>
+      <button onclick="pick(this)">Singing</button>
+    </div>
+    <span style="font-size:13px;color:var(--weak)">4 records · latest 3 min ago</span>
+  </div>
+
+  <!-- 列表卡 + 点线时间轴 -->
+  <section class="list">
+    <div class="row-card">
+      <span class="icon-block" style="background:#3A2440">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/></svg>
+      </span>
+      <div class="row-main">
+        <div class="row-title">Scene · Coffee shop</div>
+        <div class="row-sub">Today 9:30 · 8 rounds · 3m12s</div>
+      </div>
+      <span class="row-value">86.4</span>
+    </div>
+    <div class="dotline"><span class="dot"></span><span class="line"></span></div>
+    <div class="row-card">
+      <span class="icon-block" style="background:#232044">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
+      </span>
+      <div class="row-main">
+        <div class="row-title">Song · Perfect Night</div>
+        <div class="row-sub">Yesterday 20:15 · 2 takes · pitch 88</div>
+      </div>
+      <span class="row-value">88.1</span>
+    </div>
+    <div class="dotline"><span class="dot"></span><span class="line"></span></div>
+    <div class="row-card">
+      <span class="icon-block" style="background:#16303A">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M4 13h16"/></svg>
+      </span>
+      <div class="row-main">
+        <div class="row-title">Scene · Job interview</div>
+        <div class="row-sub">Sep 12 · 6 rounds · intermediate</div>
+      </div>
+      <span class="row-value">79.8</span>
+    </div>
+  </section>
+
+  <footer>UI Concept Design · landing example — values from tokens/design-tokens.md</footer>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span class="dot"></span><span id="toastText"></span></div>
+
+<script>
+  /* 分段控件：白胶囊浮起切换 */
+  function pick(btn) {
+    document.querySelectorAll('#seg button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  /* Toast：2.5s 淡出（tokens §6） */
+  let toastTimer;
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastText').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>

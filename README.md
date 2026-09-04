@@ -11,6 +11,7 @@
 - 🖼 **7 张内置参考帧**：覆盖首页英雄区、分段控件、统计卡、时间线卡、图片卡、深色展示卡等主要界面形态，动手前必看。
 - 🧩 **组件决策树**：要做什么 → 用哪个模板 / 参考帧 / 组件，减少空白区的即兴发挥。
 - 🪟 **WinForms 代码模板**：`Theme.cs`（唯一色板来源）+ 组件骨架（PillButton / CardPanel / SegmentedControl / Badge / Toast / 遮罩弹窗）。
+- 🧰 **完整源码示例**：`examples/web/landing.html` 单文件可运行（插画 hero / 胶囊按钮 / 分段控件 / 统计行 / 列表卡 / toast，含微交互动效）；`examples/README.md` 提供图标库与动效库的开源选型。
 - ✅ **验收清单**：8 条可自检的问答，全部答"是"才算完成。
 
 ## 目录结构
@@ -20,10 +21,13 @@
 ├── references/               # 7 张内置设计参考帧（视觉正本）
 ├── tokens/
 │   └── design-tokens.md      # 精确色值 / 圆角 / 字号 / 间距 / 组件规格
-└── templates/
-    └── winforms/
-        ├── Theme.cs          # 色板与字体令牌代码（WinForms 唯一来源）
-        └── ThemeControls.cs  # 组件代码骨架（PillButton / CardPanel / SegmentedControl / Badge 等）
+├── templates/
+│   └── winforms/
+│       ├── Theme.cs          # 色板与字体令牌代码（WinForms 唯一来源）
+│       └── ThemeControls.cs  # 组件代码骨架（PillButton / CardPanel / SegmentedControl / Badge 等）
+└── examples/                 # 开源素材索引 + 完整源码示例
+    ├── README.md             # 图标库选型（Lucide/Tabler/Phosphor）与动效库（Motion/Magic UI/Hover.css）
+    └── web/landing.html      # 单文件可运行的 Web 完整示例（hero/分段控件/统计行/列表卡/toast）
 ```
 
 ## 快速上手
