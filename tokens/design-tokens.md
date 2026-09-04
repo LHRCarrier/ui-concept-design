@@ -1,7 +1,8 @@
 # Design Tokens — 从内置参考帧提取的精确值
 
 > 来源：`references/` 下 7 张设计参考帧。所有 UI 必须用这里的值，禁止自造。
-> WinForms 单位换算：Web px ≈ WinForms px（96dpi 基准）。字号的 pt/px 换算见文末。
+> 单位约定：**所有尺寸以 px 为准，与平台无关**（Web px = 移动 CSS px = WinForms px，96dpi 基准）
+> WinForms `Font` 用 pt，换算见文末 §7。
 
 ## 1. 色彩（浅色为默认主题）
 
@@ -52,7 +53,7 @@
 
 西文/数字：`Segoe UI`；中文：`Microsoft YaHei UI`（微软雅黑）。
 
-| 层级 | 大小（WinForms pt / Web px） | 字重 | 颜色 | 用途 |
+| 层级 | 大小（px 为主 / WinForms pt） | 字重 | 颜色 | 用途 |
 |---|---|---|---|---|
 | Display | 34pt / **48-56px** | Bold | ink | 页面大标题（"Track deadlines."）——**宁大勿小** |
 | Title | 18pt / 22-24px | Bold | ink | 卡片标题、区块标题 |

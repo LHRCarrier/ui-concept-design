@@ -1,11 +1,11 @@
 ---
 name: "ui-concept-design"
-description: "模板驱动的现代桌面 UI 设计系统：以内置设计参考帧为视觉正本，配合精确 design tokens 与验证过的 WinForms 组件代码模板，生成明亮通透、大圆角胶囊风的界面。构建/改版任何 WinForms 或桌面应用 UI 时必须使用。"
+description: "模板驱动的现代 UI 设计系统（桌面/移动/Web 原型通用）：以内置设计参考帧为视觉正本，配合精确 design tokens 与可选的代码模板（WinForms），生成明亮通透、大圆角胶囊风的界面。构建/改版任何 UI 原型时必须使用。"
 ---
 
-# UI Concept Design — 现代桌面界面品味法典
+# UI Concept Design — 现代界面品味法典
 
-模板驱动的现代桌面 UI 设计系统（`references/` 提供内置视觉参考帧）。**只凭抽象原则写出来的 UI 一定平庸，必须对着参考帧和 tokens 做。**
+模板驱动的现代 UI 设计系统，**适用于桌面 / 移动 / Web 任何形态的界面原型**（`references/` 提供内置视觉参考帧）。**只凭抽象原则写出来的 UI 一定平庸，必须对着参考帧和 tokens 做。**
 
 ## 零、硬约束（违反任意一条必须返工）
 
@@ -13,7 +13,7 @@ description: "模板驱动的现代桌面 UI 设计系统：以内置设计参�
 2. **所有取值必须来自 `tokens/design-tokens.md`。** 色值、圆角、字号、间距都查表，禁止自造"差不多的"颜色或圆角。特别禁止：小圆角（≤8px）按钮、直角卡片、彩色渐变、粗描边堆叠、深色灰蓝"程序员主题"。
 3. **帧里的大幅线稿插画不是装饰，是视觉锚点。** 每个主视图必须至少有一处手绘线稿插画/大幅图形（气球、日历、星星那种 2.5px 黑线 + 单色填涂），这是"像设计成品"和"像普通后台"的分界线。插画用 ink 线 + pop-green 点缀，禁止彩色渐变插画。
 4. **尺度宁大勿小。** 参考帧的留白和字号都往"大气"走：Display 至少 48px（Web 56px）、统计数字 32px+、按钮高 48px、分段控件高 56px；页面边距 40px+。做出来小里小气 = 不及格。
-5. **WinForms 项目才用 `templates/winforms/`（Web/移动端跳过）。** WinForms 实现从 `Theme.cs`/`ThemeControls.cs` 出发：`Theme.cs` 是唯一色板来源，`PillButton`/`CardPanel`/`SegmentedControl`/`BadgeLabel` 是验证过的组件骨架；允许扩展，禁止绕开模板另写一套画法。Web 项目直接照 tokens 写 CSS，不套 WinForms 代码。
+5. **代码模板只是可选项。** `templates/winforms/` 仅供 WinForms/C# 项目套用（`Theme.cs` 是唯一色板来源，`PillButton`/`CardPanel`/`SegmentedControl`/`BadgeLabel` 是验证过的组件骨架，允许扩展禁止另写一套画法）；**Web/移动/其他平台直接照 tokens 写 CSS/Styles，不套 WinForms 代码**——模板与平台无关，tokens 才是唯一真源。
 6. **默认浅色主题。** 深色只允许两种形式：图片预览浮层（近黑衬托内容）、有色深色展示卡（深藏青/深紫/深绿，每屏最多一张）。禁止大面积灰蓝深色界面。
 
 ## 一、设计概念速查（11 个核心概念 + 补记规则 → 落地方式）
@@ -39,7 +39,7 @@ description: "模板驱动的现代桌面 UI 设计系统：以内置设计参�
 ## 二、工作流程（每次构建/改版都走这六步）
 
 1. **看参考帧**：打开 `references/` 中与当前界面最像的 1-2 张，记住它的圆角、留白、按钮形状、文字层级。
-2. **锁 tokens**：从 `tokens/design-tokens.md` 抄色板/圆角/字号到 `Theme.cs`（WinForms）或等价 CSS 变量（Web），不改值。
+2. **锁 tokens**：从 `tokens/design-tokens.md` 抄色板/圆角/字号到代码（WinForms 抄到 `Theme.cs`，Web/移动写成 CSS 变量），不改值。
 3. **画视觉锚点**：先画插画/图形锚点（线稿气球、日历、星星…），再在上面摆组件——**插画先于布局**，没有锚点的页面不许定稿。
 4. **套组件模板**：从 `templates/winforms/ThemeControls.cs` 复制 PillButton、CardPanel 等骨架，改业务不改视觉。
 5. **组页面**：先放主焦点（每屏一个主操作），再按 8px 网格摆间距，最后检查留白是否够"空"。
@@ -76,7 +76,7 @@ description: "模板驱动的现代桌面 UI 设计系统：以内置设计参�
 
 - `references/*.webp` — 内置设计参考帧（视觉正本，动手前必看）
 - `tokens/design-tokens.md` — 精确色值/圆角/字号/间距/组件规格
-- `templates/winforms/Theme.cs` — 色板与字体令牌代码（WinForms 唯一来源；Web 项目跳过）
-- `templates/winforms/ThemeControls.cs` — PillButton / CardPanel / SegmentedControl / Badge / Toast / 遮罩弹窗 代码骨架（WinForms 专用；Web 项目跳过）
+- `templates/winforms/Theme.cs` — 色板与字体令牌代码（**WinForms 专用可选模板**；其他平台直接照 tokens 写 CSS）
+- `templates/winforms/ThemeControls.cs` — PillButton / CardPanel / SegmentedControl / Badge / Toast / 遮罩弹窗 代码骨架（**WinForms 专用可选模板**；其他平台跳过）
 - `examples/README.md` — 开源素材索引：图标库选型（Lucide/Tabler/Phosphor）与动效库（Motion/Magic UI/Hover.css）选用规则
 - `examples/web/landing.html` — **完整 Web 源码示例**（单文件可运行）：hero 插画 + 胶囊按钮 + 分段控件 + 统计行 + 列表卡 + toast，全部值来自 tokens

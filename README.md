@@ -1,9 +1,12 @@
 # UI Concept Design
 
-模板驱动的现代桌面 UI 设计系统 —— 明亮通透、大圆角、胶囊按钮风。
+模板驱动的现代 UI 设计系统（桌面 / 移动 / Web 原型通用）—— 明亮通透、大圆角、胶囊按钮风。
 
-设计参考帧（`references/`）、精确设计令牌（`tokens/`）与代码模板（`templates/`、`examples/`）三位一体：
+设计参考帧（`references/`）、精确设计令牌（`tokens/`）与代码示例（`examples/`、`templates/`）三位一体：
 **只凭抽象原则写出来的 UI 一定平庸，必须对着参考帧和 tokens 做。**
+
+> 定位说明：本系统是**面向原型设计的**——不管你用 Web、移动端还是桌面端做原型，视觉语言都是一套；
+> WinForms 只是附带的可选代码模板之一，不是本系统的范围限定。
 
 ## 效果展示
 
@@ -53,11 +56,12 @@ Display ≥48px、统计数字 ≥32px、按钮高 48px、分段控件高 56px�
 
 ## 特性
 
+- **多端通用**：一套视觉语言覆盖 Web / 移动 / 桌面原型（参考帧全部尺寸无关，tokens 按 px 直接落各端 CSS）。
 - **精确设计令牌**：色板 / 圆角 / 字号 / 间距 / 组件规格全部查表取值，禁止"差不多"。
 - **7 张内置参考帧**：覆盖首页英雄区、分段控件、统计卡、时间线卡、图片卡、深色展示卡等主要界面形态，动手前必看。
 - **组件决策树**：要做什么 → 用哪个模板 / 参考帧 / 组件，减少空白区的即兴发挥。
-- **WinForms 代码模板**：`Theme.cs`（唯一色板来源）+ 组件骨架（PillButton / CardPanel / SegmentedControl / Badge / Toast / 遮罩弹窗），已通过编译与运行时渲染验证。
-- **完整源码示例**：`examples/web/` 下两个单文件页面（landing / practice），含微交互动效，全部值来自 tokens；`examples/README.md` 提供图标库与动效库的开源选型。
+- **完整源码示例**：`examples/web/`（landing / practice 两个单文件页面）+ `examples/app/`（home / speaking / report 三个手机页面），含微交互动效，全部值来自 tokens；`examples/README.md` 提供图标库与动效库的开源选型。
+- **可选 WinForms 模板**：`templates/winforms/`（`Theme.cs` + 组件骨架），仅供 C# 桌面项目套用，已通过编译与运行时渲染验证；其他平台跳过即可。
 - **验收清单**：8 条可自检的问答，全部答"是"才算完成。
 
 ## 目录结构
@@ -68,9 +72,9 @@ Display ≥48px、统计数字 ≥32px、按钮高 48px、分段控件高 56px�
 ├── tokens/
 │   └── design-tokens.md      # 精确色值 / 圆角 / 字号 / 间距 / 组件规格
 ├── templates/
-│   └── winforms/
-│       ├── Theme.cs          # 色板与字体令牌代码（WinForms 唯一来源）
-│       └── ThemeControls.cs  # 组件代码骨架（PillButton / CardPanel / SegmentedControl / Badge 等）
+│   └── winforms/               # 可选：仅供 C#/WinForms 项目（其他平台跳过）
+│       ├── Theme.cs           # 色板与字体令牌代码
+│       └── ThemeControls.cs   # 组件代码骨架（PillButton / CardPanel / SegmentedControl / Badge 等）
 ├── examples/
 │   ├── README.md             # 图标库选型（Lucide/Tabler/Phosphor）与动效库（Motion/Magic UI/Hover.css）
 │   ├── web/
@@ -86,9 +90,9 @@ Display ≥48px、统计数字 ≥32px、按钮高 48px、分段控件高 56px�
 ## 快速上手
 
 1. **看参考帧**：打开 `references/` 中与当前界面最像的 1-2 张，记住圆角、留白、按钮形状、文字层级。
-2. **锁 tokens**：从 `tokens/design-tokens.md` 抄色板 / 圆角 / 字号（WinForms 抄到 `Theme.cs`，Web 写成 CSS 变量），不改值。
+2. **锁 tokens**：从 `tokens/design-tokens.md` 抄色板 / 圆角 / 字号（WinForms 抄到 `Theme.cs`，其他平台写成 CSS 变量），不改值。
 3. **画视觉锚点**：先画线稿插画 / 大幅图形锚点（气球、日历、星星…），再在上面摆组件。
-4. **套组件模板**：WinForms 从 `templates/winforms/` 复制组件骨架起步；Web 直接按 tokens 写 CSS。
+4. **套示例起步**：Web / 移动从 `examples/web/`、`examples/app/` 的单文件页面克隆改造；WinForms 从 `templates/winforms/` 复制组件骨架。任何平台都直接按 tokens 写样式。
 5. **跑起来截图**，与参考帧并排对比（圆角够大吗？按钮是胶囊吗？有插画锚点吗？留白够吗？）。
 6. **不达标就回到第 1 步**。
 
